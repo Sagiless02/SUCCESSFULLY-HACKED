@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hacked Terminal</title>
+    <style>
+        body {
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: #000;
+            font-family: 'Courier New', Courier, monospace;
+            overflow: hidden;
+        }
+
+        /* Matrix-style digital rain background */
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: -1;
+            opacity: 0.6;
+        }
+
+        /* Scanline effect */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 0, 0, 0.05),
+                rgba(0, 0, 0, 0.05) 1px,
+                transparent 1px,
+                transparent 2px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            text-align: center;
+            color: #00ff00;
+            text-shadow: 0 0 8px #00ff00, 0 0 12px #00ff00;
+            z-index: 2;
+        }
+
+        .lock-icon {
+            font-size: 120px;
+            color: #00ff00;
+            margin-bottom: 25px;
+            animation: pulse 1.8s infinite ease-in-out;
+            display: none;
+        }
+
+        .hacked-text {
+            font-size: 70px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            font-weight: bold;
+            position: relative;
+            animation: glitch 0.5s infinite;
+            display: none;
+        }
+
+        .hacked-text::before,
+        .hacked-text::after {
+            content: 'SUCCESSFULLY HACKED';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            color: #00ff00;
+            opacity: 0.8;
+            font-weight: bold;
+        }
+
+        .hacked-text::before {
+            animation: glitch-top 1s infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+            -webkit-clip-path: polygon(0 0, 100% 0, 100% 33%, 0 33%);
+        }
+
+        .hacked-text::after {
+            animation: glitch-bottom 1.5s infinite;
+            clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+            -webkit-clip-path: polygon(0 67%, 100% 67%, 100% 100%, 0 100%);
+        }
+
+        /* Terminal log styles */
+        .terminal-log {
+            font-size: 18px;
+            line-height: 1.5;
+            text-align: left;
+            max-width: 600px;
+            margin-bottom: 20px;
+        }
+
+        .success {
+            font-weight: bold;
+            font-size: 24px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        /* Pulse animation for lock icon */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+
+        /* Glitch animations */
+        @keyframes glitch {
+            0% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(2px, -2px); }
+            60% { transform: translate(-1px, 1px); }
+            80% { transform: translate(1px, -1px); }
+            100% { transform: translate(0); }
+        }
+
+        @keyframes glitch-top {
+            0% { transform: translate(0); }
+            20% { transform: translate(-3px, 3px); }
+            40% { transform: translate(3px, -3px); }
+            60% { transform: translate(-2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+            100% { transform: translate(0); }
+        }
+
+        @keyframes glitch-bottom {
+            0% { transform: translate(0); }
+            20% { transform: translate(2px, -2px); }
+            40% { transform: translate(-2px, 2px); }
+            60% { transform: translate(1px, -1px); }
+            80% { transform: translate(-1px, 1px); }
+            100% { transform: translate(0); }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="matrix"></canvas>
+    <div class="scanlines"></div>
+    <div class="container">
+        <div class="terminal-log" id="terminalLog"></div>
+        <div class="lock-icon" id="lockIcon">&#x1F513;</div>
+        <div class="hacked-text" id="hackedText">SUCCESSFULLY HACKED</div>
+    </div>
+
+    <script>
+        // Matrix digital rain effect
+        const canvas = document.getElementById('matrix');
+        const ctx = canvas.getContext('2d');
+
+        canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789@#$%^&*()_+-=[]{}|;:,.<>?';
+        const fontSize = 14;
+        const columns = canvas.width / fontSize;
+        const drops = [];
+        const speeds = [];
+
+        for (let x = 0; x < columns; x++) {
+            drops[x] = Math.random() * canvas.height / fontSize;
+            speeds[x] = Math.random() * 0.5 + 0.5;
+        }
+
+        function drawMatrix() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#00ff00';
+            ctx.font = fontSize + 'px monospace';
+
+            for (let i = 0; i < drops.length; i++) {
+                const text = chars.charAt(Math.floor(Math.random() * chars.length));
+                const y = drops[i] * fontSize;
+                ctx.fillText(text, i * fontSize, y);
+
+                if (Math.random() > 0.95) {
+                    ctx.fillStyle = '#ffffff';
+                    ctx.fillText(text, i * fontSize, y);
+                    ctx.fillStyle = '#00ff00';
+                }
+
+                drops[i] += speeds[i];
+
+                if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
+                    drops[i] = 0;
+                    speeds[i] = Math.random() * 0.5 + 0.5;
+                }
+            }
+        }
+
+        setInterval(drawMatrix, 50);
+
+        // Resize canvas on window resize
+        window.addEventListener('resize', () => {
+            canvas.height = window.innerHeight;
+            canvas.width = window.innerWidth;
+            drops.length = Math.floor(canvas.width / fontSize);
+            for (let x = 0; x < drops.length; x++) {
+                drops[x] = Math.random() * canvas.height / fontSize;
+                speeds[x] = Math.random() * 0.5 + 0.5;
+            }
+        });
+
+        // Terminal log sequence
+        const sequence = [
+            `[${new Date().toLocaleTimeString()}] Initializing exploit...`,
+            `[${new Date().toLocaleTimeString()}] Scanning target...`,
+            `[${new Date().toLocaleTimeString()}] Port scan complete...`,
+            `[${new Date().toLocaleTimeString()}] Attempting SSH brute-force...`,
+            `[${new Date().toLocaleTimeString()}] Credentials found...`,
+            `[${new Date().toLocaleTimeString()}] Bypassing firewall...`,
+            `[${new Date().toLocaleTimeString()}] Decrypting data stream...`,
+            `<span class="success">[${new Date().toLocaleTimeString()}] <strong>SUCCESSFULLY HACKED</strong></span>`
+        ];
+
+        const terminalLog = document.getElementById('terminalLog');
+        const lockIcon = document.getElementById('lockIcon');
+        const hackedText = document.getElementById('hackedText');
+        let index = 0;
+
+        function displayLog() {
+            if (index < sequence.length) {
+                terminalLog.innerHTML += sequence[index] + '<br>';
+                index++;
+                setTimeout(displayLog, 1000);
+            } else {
+                lockIcon.style.display = 'block';
+                hackedText.style.display = 'block';
+                terminalLog.style.display = 'none';
+            }
+        }
+
+        displayLog();
+    </script>
+</body>
+</html>
